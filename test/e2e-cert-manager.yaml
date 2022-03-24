@@ -1,0 +1,43 @@
+---
+  ###
+  #
+  # This playbook is a working example of how to launch and perform testing
+  # of your container image in the Container Verification Pipeline (CVP).
+  #
+  # For more information on running container tests in CVP see:
+  # https://docs.engineering.redhat.com/display/CVP/Container+Verification+Pipeline+E2E+Documentation
+  #
+  # The Ansible log created when this playbook is run is archived by CVP as an artifact.
+  #
+  ###
+- hosts: all # At runtime this playbook will be executed on a Jenkins slave against 'localhost'
+  gather_facts: false
+  tags:
+    - openshift
+
+  # Here's an example of setting environment vars that will be picked up by
+  # the runtest.sh shell script below.
+  environment:
+    IMAGE_FULL_NAME: "{{ image_full_name }}"
+    IMAGE_REGISTRY_URL: "{{ image_registry_url }}"
+    IMAGE_NAMESPACE: "{{ image_namespace }}"
+    IMAGE_NAME: "{{ image_name }}"
+    IMAGE_TAG: "{{ image_tag }}"
+    IMAGE_DIGEST: "{{ image_digest }}"
+    OPENSHIFT_CLUSTER_URL: "{{ openshift_cluster_url }}"
+    OPENSHIFT_AUTH_TOKEN: "{{ openshift_auth_token }}"
+    OPENSHIFT_USERNAME: "{{ openshift_username }}"
+    OPENSHIFT_PROJECT_NAME: "{{ openshift_project_name }}"
+    CVP_ARTIFACTS_DIR: "{{ cvp_artifacts_dir }}"
+
+  tasks:
+    # CVP should have created the artifacts directory already, but it's always good to check.
+    - name: "Make sure the artifacts directory exists"
+      file:
+        path: "{{ cvp_artifacts_dir }}"
+        state: directory
+
+    # This task is an example of how you might call a shell script to run tests.
+    # The resulting log file is placed in the specified artifacts directory to be archived by CVP.
+    - name: "Run 'openshift-deploy-simple-app' test"
+      shell: make test-e2e | tee {{ cvp_artifacts_dir }}/test-openshift-deploy-simple-app.log
