@@ -1,0 +1,13 @@
+---
+tests:
+  playbooks:
+    - location: test/e2e-cert-manager.yaml
+      vars:
+        foo: bar
+results:
+  delivery_types:
+    email:
+      - ytripath@redhat.com
+cluster_version:
+  - v4.11
+  - v4.10
